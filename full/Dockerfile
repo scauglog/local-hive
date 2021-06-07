@@ -1,7 +1,8 @@
 FROM centos:7
 
 # install dependencies
-RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
+RUN yum -y install https://repo.ius.io/ius-release-el7.rpm \
+    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
     && yum install -y \
         java-1.8.0-openjdk \
         openssh-clients \
@@ -42,8 +43,8 @@ ENV HADOOP_HOME=/opt/hadoop-$HADOOP_FULL_VERSION
 ENV HADOOP_PREFIX=$HADOOP_HOME
 ENV PATH=$HADOOP_HOME/bin/:$HADOOP_HOME/sbin/:$PATH
 RUN wget -qO- https://archive.apache.org/dist/hadoop/core/hadoop-$HADOOP_FULL_VERSION/hadoop-$HADOOP_FULL_VERSION.tar.gz \
-    | tar zxC /opt/ \
-    && ln -s /opt/hadoop-$HADOOP_FULL_VERSION/etc/hadoop /etc/hadoop \
+    | tar zxC /opt/
+RUN ln -s /opt/hadoop-$HADOOP_FULL_VERSION/etc/hadoop /etc/hadoop \
     && mkdir /opt/hadoop-$HADOOP_FULL_VERSION/logs \
     && mkdir -p /hadoop-data/namenode \
     && mkdir -p /hadoop-data/datanode
@@ -56,13 +57,13 @@ RUN echo "export PATH=$HADOOP_HOME/bin/:$HADOOP_HOME/sbin/:\$PATH" >> ~/.bashrc 
 # install hive
 EXPOSE 10000
 EXPOSE 9083
-ARG HIVE_VERSION=2.3.6
+ARG HIVE_VERSION=2.3.8
 ENV HIVE_HOME="/opt/apache-hive-$HIVE_VERSION-bin"
 ENV PATH=$PATH:$HIVE_HOME/bin
 RUN echo "export PATH=$HIVE_HOME/bin/:\$PATH" >> ~/.bashrc
-RUN wget -qO- https://apache.mirrors.benatherton.com/hive/hive-$HIVE_VERSION/apache-hive-${HIVE_VERSION}-bin.tar.gz \
-    | tar zxC /opt/ \
-    && /usr/sbin/sshd \
+RUN wget -qO- https://downloads.apache.org/hive/hive-$HIVE_VERSION/apache-hive-${HIVE_VERSION}-bin.tar.gz \
+    | tar zxC /opt/
+RUN /usr/sbin/sshd \
     && start-dfs.sh \
     && hdfs dfs -mkdir /tmp \
     && hdfs dfs -mkdir -p /user/hive/warehouse \
